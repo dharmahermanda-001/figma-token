@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 
 void main() async {
   final inputPath = 'tokens/tokens.json';
@@ -17,60 +18,82 @@ void main() async {
   final buffer = StringBuffer();
 
   buffer.writeln('// GENERATED CODE - DO NOT MODIFY BY HAND');
-  buffer.writeln('import \'package:flutter/material.dart\';');
-  buffer.writeln('');
+  buffer.writeln('import \'package:flutter/material.dart\';\n');
   buffer.writeln('class MdsTokens {');
 
+  // generate instance per category
   tokens.forEach((category, values) {
-    if (values is Map<String, dynamic>) {
+    if (values is Map<String, dynamic> && values.isNotEmpty) {
       buffer.writeln('  static final $category = _${_capitalize(category)}();');
     }
   });
 
-  buffer.writeln('}');
-  buffer.writeln('');
+  buffer.writeln('}\n');
 
   // generate subclass per category
   tokens.forEach((category, values) {
-    if (values is Map<String, dynamic>) {
+    if (values is Map<String, dynamic> && values.isNotEmpty) {
       buffer.writeln('class _${_capitalize(category)} {');
       values.forEach((k, v) {
         if (v is Map<String, dynamic>) {
           final type = v['type'] ?? '';
           final val = v['value'];
 
-          if (type == 'color') {
-            final hex = val is String ? val.replaceAll('#', '') : '000000';
-            buffer.writeln(
-                '  Color get $k => Color(0xFF$hex);');
-          } else if (type == 'dimension' || type == 'borderRadius') {
-            final d = _parseDouble(val);
-            buffer.writeln('  double get $k => $d;');
-          } else if (type == 'boxShadow') {
-            if (val is List) {
-              buffer.writeln('  List<BoxShadow> get $k => [');
-              for (var shadow in val) {
-                buffer.writeln(
-                    '    BoxShadow(color: Color(0xFF${(shadow['color'] ?? '#000000').substring(1)}), offset: Offset(${shadow['x'] ?? 0}, ${shadow['y'] ?? 0}), blurRadius: ${shadow['blur'] ?? 0}, spreadRadius: ${shadow['spread'] ?? 0}),');
+          switch (type) {
+            case 'color':
+              final hex = val is String ? val.replaceAll('#', '') : '000000';
+              buffer.writeln('  Color get $k => Color(0xFF$hex);');
+              break;
+
+            case 'dimension':
+            case 'borderRadius':
+              buffer.writeln('  double get $k => ${_parseDouble(val)};');
+              break;
+
+            case 'boxShadow':
+              if (val is List) {
+                buffer.writeln('  List<BoxShadow> get $k => [');
+                for (var shadow in val) {
+                  final color = (shadow['color'] ?? '#000000').replaceAll('#', '');
+                  final x = shadow['x'] ?? 0;
+                  final y = shadow['y'] ?? 0;
+                  final blur = shadow['blur'] ?? 0;
+                  final spread = shadow['spread'] ?? 0;
+                  buffer.writeln(
+                      '    BoxShadow(color: Color(0xFF$color), offset: Offset($x, $y), blurRadius: $blur, spreadRadius: $spread),');
+                }
+                buffer.writeln('  ];');
+              } else {
+                buffer.writeln('  List<BoxShadow> get $k => [];');
               }
-              buffer.writeln('  ];');
-            } else {
-              buffer.writeln('  List<BoxShadow> get $k => [];');
-            }
-          } else if (type == 'typography') {
-            // fallback: bisa di extend nanti
-            buffer.writeln('  Map<String,dynamic> get $k => ${jsonEncode(val)};');
-          } else {
-            // string / number / unknown
-            buffer.writeln('  dynamic get $k => ${_encodeValue(val)};');
+              break;
+
+            case 'typography':
+              if (val is Map) {
+                buffer.writeln('  Map<String,dynamic> get $k => ${jsonEncode(val)};');
+              } else {
+                buffer.writeln('  dynamic get $k => ${_encodeValue(val)};');
+              }
+              break;
+
+            default:
+              // fallback untuk Map tanpa type atau string/number
+              if (val is Map || val is List) {
+                buffer.writeln('  dynamic get $k => ${jsonEncode(val)};');
+              } else {
+                buffer.writeln('  dynamic get $k => ${_encodeValue(val)};');
+              }
           }
+        } else {
+          // fallback jika v bukan Map
+          buffer.writeln('  dynamic get $k => ${_encodeValue(v)};');
         }
       });
       buffer.writeln('}\n');
     }
   });
 
-  // create output folder if not exists
+  // buat folder output jika belum ada
   final outputFile = File(outputPath);
   outputFile.parent.createSync(recursive: true);
   await outputFile.writeAsString(buffer.toString());
@@ -83,7 +106,7 @@ String _capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 double _parseDouble(dynamic val) {
   if (val == null) return 0;
   if (val is num) return val.toDouble();
-  if (val is String) return double.tryParse(val.replaceAll('px', '')) ?? 0;
+  if (val is String) return double.tryParse(val.replaceAll('px', '').replaceAll('%', '')) ?? 0;
   return 0;
 }
 
