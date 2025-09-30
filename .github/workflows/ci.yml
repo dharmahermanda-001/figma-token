@@ -2,28 +2,31 @@ name: Generate Tokens
 
 on:
   push:
-    branches:
-      - main
+    paths:
+      - "tokens/tokens.json"
 
 jobs:
-  build:
+  generate:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-      - name: Set up Dart
-        uses: dart-lang/setup-dart@v1
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          sdk: '3.13.0'
+          flutter-version: "3.13.0"
 
-      - name: Run generate tokens
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate Tokens
         run: dart tool/generate_tokens.dart
 
-      - name: Commit & Push
+      - name: Commit generated files
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add .
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add lib/generated/
           git commit -m "chore: update generated tokens" || echo "No changes to commit"
-          git push https://USERNAME:${{ secrets.PAT_TOKEN }}@github.com/dharmahermanda-001/mds-token.git main
+          git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/dharmahermanda-001/mds-token.git HEAD:main
