@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+//import 'package:flutter/material.dart';
 
 void main() async {
   final inputPath = 'tokens/tokens.json';
@@ -53,7 +54,8 @@ void main() async {
               if (val is List) {
                 buffer.writeln('  List<BoxShadow> get $k => [');
                 for (var shadow in val) {
-                  final color = (shadow['color'] ?? '#000000').replaceAll('#', '');
+                  final color =
+                      (shadow['color'] ?? '#000000').replaceAll('#', '');
                   final x = shadow['x'] ?? 0;
                   final y = shadow['y'] ?? 0;
                   final blur = shadow['blur'] ?? 0;
@@ -69,7 +71,8 @@ void main() async {
 
             case 'typography':
               if (val is Map) {
-                buffer.writeln('  Map<String,dynamic> get $k => ${jsonEncode(val)};');
+                buffer.writeln(
+                    '  Map<String,dynamic> get $k => ${jsonEncode(val)};');
               } else {
                 buffer.writeln('  dynamic get $k => ${_encodeValue(val)};');
               }
@@ -105,7 +108,8 @@ String _capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 double _parseDouble(dynamic val) {
   if (val == null) return 0;
   if (val is num) return val.toDouble();
-  if (val is String) return double.tryParse(val.replaceAll('px', '').replaceAll('%', '')) ?? 0;
+  if (val is String)
+    return double.tryParse(val.replaceAll('px', '').replaceAll('%', '')) ?? 0;
   return 0;
 }
 
