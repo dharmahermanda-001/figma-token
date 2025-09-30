@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 void main() async {
-  final inputPath = 'tokens/tokens.json';
+  final inputPath = '../tokens/tokens.json';
   final outputPath = 'lib/generated/mds_tokens.dart';
 
   final inputFile = File(inputPath);
