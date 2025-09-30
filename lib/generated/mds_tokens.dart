@@ -12,10 +12,10 @@ class MdsTokens {
 
 class _Color2 {
   Color get primary => Color(0xFF00658d);
-  Color get on-primary => Color(0xFFffffff);
-  Color get primary-container => Color(0xFFc6e7ff);
-  Color get on-primary-container => Color(0xFF001d2e);
-  Color get invers-primary => Color(0xFF83cfff);
+  Color get onPrimary => Color(0xFFffffff);
+  Color get primaryContainer => Color(0xFFc6e7ff);
+  Color get onPrimaryContainer => Color(0xFF001d2e);
+  Color get inversPrimary => Color(0xFF83cfff);
   Color get surface => Color(0xFFf6fafe);
   Color get cooper => Color(0xFFffaf611a);
   Color get blue => Color(0xFF00aeff);
