@@ -2,200 +2,99 @@ import 'dart:convert';
 import 'dart:io';
 
 void main() async {
-  final file = File('tokens/tokens.json');
-  if (!file.existsSync()) {
-    print('File tokens.json tidak ditemukan!');
-    return;
+  final inputPath = 'lib/tokens.json';
+  final outputPath = 'lib/generated/mds_tokens.dart';
+
+  final jsonFile = File(inputPath);
+  if (!jsonFile.existsSync()) {
+    print('File not found: $inputPath');
+    exit(1);
   }
 
-  final jsonStr = await file.readAsString();
-  final Map<String, dynamic> tokens = jsonDecode(jsonStr);
+  final Map<String, dynamic> jsonData = jsonDecode(await jsonFile.readAsString());
 
   final buffer = StringBuffer();
-
   buffer.writeln('// GENERATED CODE - DO NOT MODIFY BY HAND');
   buffer.writeln('import \'package:flutter/material.dart\';');
-  buffer.writeln('');
   buffer.writeln('class MdsTokens {');
-  buffer.writeln('  MdsTokens._();\n');
 
-  // --- COLORS ---
-  if (tokens.containsKey('colors')) {
-    buffer.writeln('  // Colors');
-    buffer.writeln('  static _MdsColors get color => _MdsColors();\n');
-  }
+  jsonData.forEach((key, value) {
+    if (key.startsWith(r'$')) return; // skip metadata
+    final className = _pascalCase(key);
+    buffer.writeln('  static final $key = _$className();');
+  });
 
-  // --- SPACING ---
-  if (tokens.containsKey('spacing')) {
-    buffer.writeln('  // Spacing');
-    buffer.writeln('  static _MdsSpacing get spacing => _MdsSpacing();\n');
-  }
+  buffer.writeln('}\n');
 
-  // --- TYPOGRAPHY ---
-  if (tokens.containsKey('fontSize') ||
-      tokens.containsKey('lineHeights') ||
-      tokens.containsKey('fontWeights')) {
-    buffer.writeln('  // Typography');
-    buffer.writeln(
-        '  static _MdsTypography get typography => _MdsTypography();\n');
-  }
+  // buat tiap subclass
+  jsonData.forEach((key, value) {
+    if (key.startsWith(r'$')) return;
+    final className = _pascalCase(key);
+    buffer.writeln('class _$className {');
 
-  // --- ELEVATION / BOXSHADOW ---
-  if (tokens.containsKey('elevation')) {
-    buffer.writeln('  // Elevation / Shadow');
-    buffer
-        .writeln('  static _MdsElevation get elevation => _MdsElevation();\n');
-  }
-
-  buffer.writeln('}');
-
-  // -------------------------
-  // Generate Colors
-  if (tokens.containsKey('colors')) {
-    buffer.writeln('\nclass _MdsColors {');
-    tokens['colors'].forEach((key, value) {
-      final hex = value['value'] as String;
-      buffer.writeln(
-          '  final Color $key = Color(0xFF${hex.substring(1).toUpperCase()});');
-    });
-    buffer.writeln('}');
-  }
-
-  // -------------------------
-  // Generate Spacing
-  if (tokens.containsKey('spacing')) {
-    buffer.writeln('\nclass _MdsSpacing {');
-    tokens['spacing'].forEach((key, value) {
-      buffer.writeln('  final double $key = ${value['value'].toDouble()};');
-    });
-    buffer.writeln('}');
-  }
-
-  // -------------------------
-  // Generate Elevation / BoxShadow
-  if (tokens.containsKey('elevation')) {
-    buffer.writeln('\nclass _MdsElevation {');
-    tokens['elevation'].forEach((key, value) {
-      final shadows = value['value'] as List<dynamic>;
-      buffer.writeln('  final List<BoxShadow> level$key = [');
-      for (var s in shadows) {
-        final color = s['color'] as String;
-        final x = s['x'];
-        final y = s['y'];
-        final blur = s['blur'];
-        final spread = s['spread'];
-        buffer.writeln(
-            '    BoxShadow(color: Color(0xFF${color.substring(1).toUpperCase()}), offset: Offset($x, $y), blurRadius: $blur, spreadRadius: $spread),');
-      }
-      buffer.writeln('  ];');
-    });
-    buffer.writeln('}');
-  }
-
-  // -------------------------
-  // Generate Typography
-  if (tokens.containsKey('fontSize')) {
-    buffer.writeln('\nclass _MdsTypography {');
-
-    final fontFamilies = tokens['fontFamilies'] ?? {};
-    final fontWeights = tokens['fontWeights'] ?? {};
-    final fontSizes = tokens['fontSize'] ?? {};
-    final lineHeights = tokens['lineHeights'] ?? {};
-    final letterSpacing = tokens['letterSpacing'] ?? {};
-    final paragraphSpacing = tokens['paragraphSpacing'] ?? {};
-
-    tokens.forEach((key, value) {
-      if (value is Map<String, dynamic> &&
-          value.containsKey('value') &&
-          value['type'] == 'typography') {
-        final v = value['value'] as Map<String, dynamic>;
-
-        final fontFamilyRef = v['fontFamily']?.toString() ?? '';
-        final fontWeightRef = v['fontWeight']?.toString() ?? '';
-        final fontSizeRef = v['fontSize']?.toString() ?? '';
-        final lineHeightRef = v['lineHeight']?.toString() ?? '';
-        final letterSpacingRef = v['letterSpacing']?.toString() ?? '';
-
-        buffer.writeln('  TextStyle get $key => TextStyle(');
-        buffer.writeln(
-            '    fontFamily: ${_resolveToken(fontFamilies, fontFamilyRef)},');
-        buffer.writeln(
-            '    fontWeight: ${_resolveFontWeight(fontWeights, fontWeightRef)},');
-        buffer.writeln(
-            '    fontSize: ${_resolveTokenValue(fontSizes, fontSizeRef)},');
-        buffer.writeln(
-            '    height: ${_resolveLineHeight(lineHeights, lineHeightRef, fontSizes, fontSizeRef)},');
-        buffer.writeln(
-            '    letterSpacing: ${_resolveTokenValue(letterSpacing, letterSpacingRef)},');
-        buffer.writeln('  );\n');
-      }
-    });
-
-    buffer.writeln('}');
-  }
-
-  // -------------------------
-  // Tulis file
-  final outputFile = File('lib/generated/mds_tokens.dart');
-  await outputFile.writeAsString(buffer.toString());
-  print('✅ Tokens berhasil digenerate ke lib/generated/mds_tokens.dart');
-}
-
-// -----------------------------------
-// Helper functions
-String _resolveToken(Map<String, dynamic> tokens, String ref) {
-  if (ref.startsWith('{') && ref.endsWith('}')) {
-    final path = ref.substring(1, ref.length - 1).split('.');
-    dynamic current = tokens;
-    for (var p in path) {
-      if (current[p] != null) {
-        current = current[p];
-      } else {
-        return 'null';
-      }
+    if (value is Map<String, dynamic>) {
+      value.forEach((k, v) {
+        if (v == null) return;
+        if (v is Map<String, dynamic>) {
+          final type = v['type'];
+          final val = v['value'];
+          if (type == 'color') {
+            buffer.writeln('  Color get $k => Color(0xFF${val.toString().substring(1)});');
+          } else if (type == 'borderRadius') {
+            buffer.writeln('  double get $k => double.parse("$val");');
+          } else if (type == 'dimension' || type == 'fontSizes' || type == 'lineHeights' || type == 'letterSpacing' || type == 'paragraphSpacing') {
+            buffer.writeln('  double get $k => double.parse("$val");');
+          } else if (type == 'boxShadow') {
+            // val di boxShadow biasanya list
+            if (val is List) {
+              buffer.writeln('  List<BoxShadow> get $k => [');
+              for (var shadow in val) {
+                buffer.writeln(
+                    '    BoxShadow(color: Color(0xFF${shadow['color'].substring(1)}), offset: Offset(${shadow['x']}, ${shadow['y']}), blurRadius: ${shadow['blur']}, spreadRadius: ${shadow['spread']}),');
+              }
+              buffer.writeln('  ];');
+            }
+          } else if (type == 'typography') {
+            buffer.writeln('  TextStyle get $k => TextStyle(');
+            if (val['fontSize'] != null) buffer.writeln('    fontSize: double.parse("${val['fontSize']}"),');
+            if (val['lineHeight'] != null && val['fontSize'] != null) {
+              buffer.writeln('    height: double.parse("${val['lineHeight']}") / double.parse("${val['fontSize']}"),');
+            }
+            if (val['fontWeight'] != null) buffer.writeln('    fontWeight: FontWeight.w${_fontWeightNumber(val['fontWeight'])},');
+            buffer.writeln('  );');
+          } else {
+            // default: simpan sebagai String
+            buffer.writeln('  final $k = "$val";');
+          }
+        }
+      });
     }
-    return '\'${current['value']}\'';
-  }
-  return '\'${ref}\'';
+
+    buffer.writeln('}\n');
+  });
+
+  final outFile = File(outputPath);
+  outFile.createSync(recursive: true);
+  outFile.writeAsStringSync(buffer.toString());
+
+  print('Tokens generated successfully: $outputPath');
 }
 
-String _resolveTokenValue(Map<String, dynamic> tokens, String ref) {
-  if (ref.startsWith('{') && ref.endsWith('}')) {
-    final path = ref.substring(1, ref.length - 1).split('.');
-    dynamic current = tokens;
-    for (var p in path) {
-      if (current[p] != null) {
-        current = current[p];
-      } else {
-        return '0.0';
-      }
-    }
-    return (current['value'] is String)
-        ? '${double.tryParse(current['value']) ?? 0.0}'
-        : '${current['value']}.0';
-  }
-  return ref;
-}
+String _pascalCase(String s) =>
+    s.split(RegExp(r'[_\s-]')).map((e) => e[0].toUpperCase() + e.substring(1)).join();
 
-String _resolveFontWeight(Map<String, dynamic> tokens, String ref) {
-  final val = _resolveTokenValue(tokens, ref);
-  switch (val) {
-    case 'Regular':
-      return 'FontWeight.w400';
-    case 'Medium':
-      return 'FontWeight.w500';
-    case 'Bold':
-      return 'FontWeight.w700';
+String _fontWeightNumber(String value) {
+  switch (value.toLowerCase()) {
+    case 'regular':
+    case '400':
+      return '400';
+    case 'medium':
+    case '500':
+      return '500';
+    case 'bold':
+    case '700':
+      return '700';
     default:
-      return 'FontWeight.normal';
+      return '400';
   }
-}
-
-String _resolveLineHeight(Map<String, dynamic> lineHeights, String ref,
-    Map<String, dynamic> fontSizes, String fontSizeRef) {
-  final lhStr = _resolveTokenValue(lineHeights, ref);
-  final fsStr = _resolveTokenValue(fontSizes, fontSizeRef);
-  final lh = double.tryParse(lhStr) ?? 14.0;
-  final fs = double.tryParse(fsStr) ?? 14.0;
-  return (lh / fs).toStringAsFixed(2);
 }
