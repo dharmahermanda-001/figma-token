@@ -1,0 +1,9 @@
+name: design_tokens
+description: Design tokens MDS.
+version: 0.0.2
+environment:
+  sdk: ">=2.17.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
