@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 
 class MdsTokens {
   static final color2 = _Color2();
-  static final Text = _Text();
   static final pad2 = _Pad2();
   static final gap2 = _Gap2();
   static final radius2 = _Radius2();
   static final gab2 = _Gab2();
+  static final $metadata = _$metadata();
 }
 
 class _Color2 {
@@ -17,13 +17,8 @@ class _Color2 {
   Color get onPrimaryContainer => Color(0xFF001d2e);
   Color get inversPrimary => Color(0xFF83cfff);
   Color get surface => Color(0xFFf6fafe);
-  Color get cooper => Color(0xFFf0f0f0);
+  Color get cooper => Color(0xFFfff000);
   Color get blue => Color(0xFF00aeff);
-}
-
-class _Text {
-  dynamic get value => 'true';
-  dynamic get type => 'boolean';
 }
 
 class _Pad2 {
@@ -48,12 +43,16 @@ class _Gap2 {
 }
 
 class _Radius2 {
-  double get sm => 0.375;
+  double get sm => 15.0;
   double get md => 0.625;
   double get lg => 0.875;
 }
 
 class _Gab2 {
   double get none => 3.0;
+}
+
+class _$metadata {
+  dynamic get tokenSetOrder => ["color2","Text","pad2","gap2","radius2","gab2"];
 }
 
