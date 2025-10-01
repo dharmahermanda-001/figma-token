@@ -7,6 +7,7 @@ class MdsTokens {
   static final gap2 = _Gap2();
   static final radius2 = _Radius2();
   static final gab2 = _Gab2();
+  static final registry = _Registry();
   static final $metadata = _$metadata();
 }
 
@@ -26,10 +27,10 @@ class _Pad2 {
   double get md => 1.0;
   double get sm => 0.5;
   double get xl => 24.0;
-  double get none => 10.0;
+  double get none => 0.0;
   double get xs => 0.25;
   double get xxl => 23.0;
-  double get xxs => 11.0;
+  double get xxs => 0.125;
 }
 
 class _Gap2 {
@@ -49,10 +50,14 @@ class _Radius2 {
 }
 
 class _Gab2 {
-  double get none => 20.0;
+  double get none => 3.0;
+}
+
+class _Registry {
+  dynamic get OOBFilledButton => null;
 }
 
 class _$metadata {
-  dynamic get tokenSetOrder => ["color2","Text","pad2","gap2","radius2","gab2"];
+  dynamic get tokenSetOrder => ["color2","Text","pad2","gap2","radius2","gab2","registry"];
 }
 
