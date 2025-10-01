@@ -55,6 +55,3 @@ jobs:
           GH_PAT: ${{ secrets.PAT_TOKEN }}
         run: |
           git push https://x-access-token:${GH_PAT}@github.com/dharmahermanda-001/mds-token.git HEAD:main
-		  
-		  
-		  
