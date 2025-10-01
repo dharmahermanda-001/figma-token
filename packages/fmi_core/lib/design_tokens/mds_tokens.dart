@@ -26,7 +26,7 @@ class _Pad2 {
   double get md => 1.0;
   double get sm => 0.5;
   double get xl => 24.0;
-  double get none => 0.0;
+  double get none => 10.0;
   double get xs => 0.25;
   double get xxl => 23.0;
   double get xxs => 0.125;
@@ -49,7 +49,7 @@ class _Radius2 {
 }
 
 class _Gab2 {
-  double get none => 3.0;
+  double get none => 45.0;
 }
 
 class _$metadata {
