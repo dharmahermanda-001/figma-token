@@ -3,7 +3,7 @@ import 'dart:io';
 
 void main() async {
   final inputPath = 'tokens/tokens.json';
-  final outputPath = 'lib/generated/mds_tokens.dart';
+  final outputPath = 'packages/fmi_core/lib/design_tokens/mds_tokens.dart';
 
   final inputFile = File(inputPath);
   if (!inputFile.existsSync()) {
