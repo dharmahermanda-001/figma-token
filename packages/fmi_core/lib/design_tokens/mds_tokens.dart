@@ -17,7 +17,7 @@ class _Color2 {
   Color get onPrimaryContainer => Color(0xFF001d2e);
   Color get inversPrimary => Color(0xFF83cfff);
   Color get surface => Color(0xFFf6fafe);
-  Color get cooper => Color(0xFFff5b00);
+  Color get cooper => Color(0xFFff0000);
   Color get blue => Color(0xFF00aeff);
 }
 
