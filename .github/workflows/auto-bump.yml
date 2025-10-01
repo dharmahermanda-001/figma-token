@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - "packages/fmi_core/**"
+      - "packages/fmi_core/lib/**"
+      - "packages/fmi_core/lib/design_tokens/**"
 
 jobs:
   bump:
