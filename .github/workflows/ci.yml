@@ -1,4 +1,4 @@
-name: Generate Tokens and Bump Version
+name: Generate Tokens and Commit Package
 
 on:
   push:
@@ -7,15 +7,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  generate_and_bump:
+  generate_package:
     runs-on: ubuntu-latest
 
     steps:
       # 1. Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
 
       # 2. Setup Flutter
       - name: Setup Flutter
@@ -23,7 +21,7 @@ jobs:
         with:
           flutter-version: "3.13.0"
 
-      # 3. Install dependencies
+      # 3. Install dependencies (optional untuk tool Dart)
       - name: Install dependencies
         run: flutter pub get
 
@@ -31,29 +29,27 @@ jobs:
       - name: Generate Tokens
         run: dart tool/generate_tokens.dart
 
-      # 5. Commit generated files
+      # 5. Verify generated file
+      - name: Check generated file
+        run: ls -l packages/fmi_core/lib/design_tokens/mds_tokens.dart
+
+      # 6. Add LICENSE/pubspec changes jika perlu
+      - name: Prepare package
+        run: |
+          cd packages/fmi_core
+          flutter pub get
+          cd ../..
+
+      # 7. Commit generated files & package updates
       - name: Commit generated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add packages/fmi_core/lib/design_tokens/mds_tokens.dart
-          git commit -m "chore: update generated tokens" || echo "No token changes"
-
-      # 6. Bump version in pubspec.yaml
-      - name: Bump version
-        run: |
-          FILE="packages/fmi_core/pubspec.yaml"
-          VERSION=$(grep '^version:' $FILE | awk '{print $2}')
-          MAJOR=$(echo $VERSION | cut -d. -f1)
-          MINOR=$(echo $VERSION | cut -d. -f2)
-          PATCH=$(echo $VERSION | cut -d. -f3)
-          NEW_VERSION="$MAJOR.$MINOR.$((PATCH+1))"
-          echo "Bumping version: $VERSION → $NEW_VERSION"
-          sed -i "s/^version: .*/version: $NEW_VERSION/" $FILE
-          git add $FILE
-          git commit -m "chore(fmi_core): bump version to $NEW_VERSION" || echo "No version change"
-
-      # 7. Push back to repo
+          git add packages/fmi_core/pubspec.lock || echo "No pubspec.lock changes"
+          git commit -m "chore: update generated tokens & package" || echo "No changes to commit"
+      
+      # 8. Push to repo using PAT token
       - name: Push changes
         env:
           GH_PAT: ${{ secrets.PAT_TOKEN }}
