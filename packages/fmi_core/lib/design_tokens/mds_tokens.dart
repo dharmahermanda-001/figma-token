@@ -43,7 +43,7 @@ class _Gap2 {
   double get md => 1.0;
   double get none => 10.0;
   double get xl => 10.0;
-  double get xxs => 10.0;
+  double get xxs => 20.0;
   double get xs => 0.7;
 }
 
