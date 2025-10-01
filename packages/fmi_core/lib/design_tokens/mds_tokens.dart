@@ -50,7 +50,7 @@ class _Radius2 {
 }
 
 class _Gab2 {
-  double get none => 20.0;
+  double get none => 10.0;
 }
 
 class _Registry {
