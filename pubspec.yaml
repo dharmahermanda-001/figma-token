@@ -1,8 +1,8 @@
-name: design_tokens
-description: Design tokens MDS.
-version: 0.0.2
+name: fmi_core
+description: Figma tokens package
+version: 0.1.0
 environment:
-  sdk: ">=2.17.0 <4.0.0"
+  sdk: ">=2.19.0 <3.0.0"
 
 dependencies:
   flutter:
