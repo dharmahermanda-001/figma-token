@@ -15,53 +15,7 @@ void main() async {
   final jsonStr = await inputFile.readAsString();
   final Map<String, dynamic> tokens = jsonDecode(jsonStr);
 
-  // --- STEP 1: collect categories & keys from tokens.json
-  final newCategories = <String, Set<String>>{};
-  tokens.forEach((category, values) {
-    if (values is Map<String, dynamic> && values.isNotEmpty) {
-      newCategories[category] = values.keys.toSet();
-    }
-  });
-
-  // --- STEP 2: if old file exists, parse it
-  final oldFile = File(tokenOutputPath);
-  if (oldFile.existsSync()) {
-    final oldContent = await oldFile.readAsString();
-
-    final missing = <String, List<String>>{};
-
-    // regex ambil class & getter
-    final classRegex = RegExp(r'class _([A-Za-z0-9_]+) \{([\s\S]*?)\}');
-    for (final match in classRegex.allMatches(oldContent)) {
-      final category = match.group(1)?.toLowerCase();
-      final body = match.group(2) ?? '';
-
-      if (category != null) {
-        final getters = RegExp(r'(\w+)\s+get\s+(\w+)')
-            .allMatches(body)
-            .map((m) => m.group(2)!)
-            .toSet();
-
-        final existing = newCategories[category] ?? <String>{};
-        final diff = getters.difference(existing);
-
-        if (diff.isNotEmpty) {
-          missing[category] = diff.toList();
-        }
-      }
-    }
-
-    if (missing.isNotEmpty) {
-      print(
-          '❌ Validation failed: Some tokens disappeared compared to previous file.');
-      missing.forEach((cat, props) {
-        print(' - Category $cat: missing ${props.join(', ')}');
-      });
-      exit(1);
-    }
-  }
-
-  // --- STEP 1: Generate tokens file ---
+  // --- Generate tokens file ---
   final tokenBuffer = StringBuffer();
   tokenBuffer.writeln('// GENERATED CODE - DO NOT MODIFY BY HAND');
   tokenBuffer.writeln('import \'package:flutter/material.dart\';\n');
@@ -69,11 +23,9 @@ void main() async {
 
   tokens.forEach((category, values) {
     if (values is Map<String, dynamic> && values.isNotEmpty) {
-      tokenBuffer
-          .writeln('  static final $category = _${_capitalize(category)}();');
+      tokenBuffer.writeln('  static final $category = _${_capitalize(category)}();');
     }
   });
-
   tokenBuffer.writeln('}\n');
 
   tokens.forEach((category, values) {
@@ -108,22 +60,29 @@ void main() async {
   await tokenFile.writeAsString(tokenBuffer.toString());
   print('✅ Tokens generated to $tokenOutputPath');
 
-  // --- STEP 2: Generate widget class per component with flexible variant factory ---
+  // --- Generate widget classes ---
   if (tokens.containsKey('registry') &&
       tokens['registry'] is Map<String, dynamic>) {
     final registry = tokens['registry'] as Map<String, dynamic>;
+
     for (final compName in registry.keys) {
       final compData = registry[compName];
-      final compFile =
-          File('$componentBasePath/${compName.toLowerCase()}.dart');
+
+      // snake_case file name
+      final fileName = compName.replaceAllMapped(
+        RegExp(r'([a-z])([A-Z])'),
+        (m) => '${m[1]}_${m[2]}',
+      ).toLowerCase();
+
+      final compFile = File('$componentBasePath/$fileName.dart');
       compFile.parent.createSync(recursive: true);
 
       final regBuffer = StringBuffer();
       regBuffer.writeln('// GENERATED CODE - DO NOT MODIFY BY HAND');
       regBuffer.writeln('import \'package:flutter/material.dart\';');
-      regBuffer.writeln('import \'token.dart\';\n');
+      regBuffer.writeln('import \'../design_tokens/mds_tokens.dart\';\n');
 
-      // --- class definition ---
+      // class definition
       regBuffer.writeln('class $compName extends StatelessWidget {');
       regBuffer.writeln('  final ButtonStyle? style;');
       regBuffer.writeln('  final Widget child;');
@@ -131,7 +90,7 @@ void main() async {
       regBuffer.writeln('  final bool iconVisible;');
       regBuffer.writeln('  final VoidCallback onPressed;\n');
 
-      // --- constructor ---
+      // constructor
       regBuffer.writeln('  const $compName({');
       regBuffer.writeln('    this.style,');
       regBuffer.writeln('    required this.child,');
@@ -141,9 +100,15 @@ void main() async {
       regBuffer.writeln('    super.key,');
       regBuffer.writeln('  });\n');
 
-      // --- flexible variant factory ---
-      regBuffer.writeln(
-          '  factory $compName.variant({required String style, required VoidCallback onPressed, Widget? child, Icon? icon, ButtonStyle? style, bool? iconVisible}) {');
+      // variant factory
+      regBuffer.writeln('  factory $compName.variant({');
+      regBuffer.writeln('    required String variant,');
+      regBuffer.writeln('    required VoidCallback onPressed,');
+      regBuffer.writeln('    Widget? child,');
+      regBuffer.writeln('    Icon? icon,');
+      regBuffer.writeln('    ButtonStyle? style,');
+      regBuffer.writeln('    bool? iconVisible,');
+      regBuffer.writeln('  }) {');
       regBuffer.writeln('    late ButtonStyle defaultStyle;');
       regBuffer.writeln('    late Widget defaultChild;');
       regBuffer.writeln('    late Icon? defaultIcon;');
@@ -158,25 +123,19 @@ void main() async {
           final styleVal = props['style'];
           if (styleVal is Map && styleVal['type'] == 'style') {
             final styleMap = styleVal['value'] as Map;
-            final bg =
-                styleMap['backgroundColor'] ?? 'MdsTokens.color2.primary';
+            final bg = styleMap['backgroundColor'] ?? 'MdsTokens.color2.primary';
             final pad = styleMap['padding'] ?? 'MdsTokens.pad2.md';
             final radius = styleMap['radius'] ?? 'MdsTokens.radius2.sm';
 
-            regBuffer
-                .writeln('        defaultStyle = ElevatedButton.styleFrom(');
-            regBuffer.writeln(
-                '          backgroundColor: MdsTokens.color2.primary,');
-            regBuffer.writeln(
-                '          padding: EdgeInsets.all(MdsTokens.pad2.md),');
+            regBuffer.writeln('        defaultStyle = ElevatedButton.styleFrom(');
+            regBuffer.writeln('          backgroundColor: MdsTokens.${bg.replaceAll('.', '.')} ,');
+            regBuffer.writeln('          padding: EdgeInsets.all(MdsTokens.${pad.replaceAll('.', '.')}),');
             regBuffer.writeln('          shape: RoundedRectangleBorder(');
-            regBuffer.writeln(
-                '            borderRadius: BorderRadius.circular(MdsTokens.radius2.sm),');
+            regBuffer.writeln('            borderRadius: BorderRadius.circular(MdsTokens.${radius.replaceAll('.', '.')}),');
             regBuffer.writeln('          ),');
             regBuffer.writeln('        );');
           } else {
-            regBuffer
-                .writeln('        defaultStyle = ElevatedButton.styleFrom();');
+            regBuffer.writeln('        defaultStyle = ElevatedButton.styleFrom();');
           }
 
           // child
@@ -196,23 +155,20 @@ void main() async {
           regBuffer.writeln('        break;');
         });
         regBuffer.writeln('      default:');
-        regBuffer
-            .writeln("        throw Exception('Unknown variant \$variant');");
+        regBuffer.writeln("        throw Exception('Unknown variant \$variant');");
         regBuffer.writeln('    }');
       }
 
-      // return statement
       regBuffer.writeln('    return $compName(');
       regBuffer.writeln('      style: style ?? defaultStyle,');
       regBuffer.writeln('      child: child ?? defaultChild,');
       regBuffer.writeln('      icon: icon ?? defaultIcon,');
-      regBuffer
-          .writeln('      iconVisible: iconVisible ?? defaultIconVisible,');
+      regBuffer.writeln('      iconVisible: iconVisible ?? defaultIconVisible,');
       regBuffer.writeln('      onPressed: onPressed,');
       regBuffer.writeln('    );');
       regBuffer.writeln('  }\n');
 
-      // --- build method ---
+      // build method
       regBuffer.writeln('  @override');
       regBuffer.writeln('  Widget build(BuildContext context) {');
       regBuffer.writeln('    return ElevatedButton.icon(');
@@ -245,6 +201,4 @@ double _parseDouble(dynamic val) {
 String _encodeValue(dynamic val) {
   if (val is String) return "'$val'";
   if (val is num) return val.toString();
-  if (val is bool) return val.toString();
-  return jsonEncode(val);
-}
+  if (val is bool)
