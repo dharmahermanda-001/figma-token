@@ -1,0 +1,39 @@
+name: Auto Bump fmi_core Version
+
+on:
+  push:
+    paths:
+      - "packages/fmi_core/**"
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }} # pakai PAT biar bisa push balik
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: "stable"
+
+      - name: Bump version in pubspec.yaml
+        run: |
+          FILE="packages/fmi_core/pubspec.yaml"
+          VERSION=$(grep '^version:' $FILE | awk '{print $2}')
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
+          NEW_VERSION="$MAJOR.$MINOR.$((PATCH+1))"
+          echo "Bumping version: $VERSION → $NEW_VERSION"
+          sed -i "s/^version: .*/version: $NEW_VERSION/" $FILE
+
+      - name: Commit new version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add packages/fmi_core/pubspec.yaml
+          git commit -m "chore(fmi_core): bump version"
+          git push origin main
