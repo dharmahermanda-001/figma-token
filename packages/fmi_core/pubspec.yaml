@@ -1,6 +1,6 @@
 name: fmi_core
 description: Core design tokens package
-version: 0.0.14
+version: 0.0.15
 publish_to: none
 environment:
   sdk: ">=2.19.0 <4.0.0"
