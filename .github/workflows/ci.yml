@@ -6,6 +6,9 @@ on:
       - "tokens/tokens.json"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   generate_package:
     runs-on: ubuntu-latest
@@ -14,6 +17,8 @@ jobs:
       # 1. Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
 
       # 2. Setup Flutter
       - name: Setup Flutter
@@ -21,7 +26,7 @@ jobs:
         with:
           flutter-version: "3.13.0"
 
-      # 3. Install dependencies (optional untuk tool Dart)
+      # 3. Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
@@ -33,25 +38,52 @@ jobs:
       - name: Check generated file
         run: ls -l packages/fmi_core/lib/design_tokens/mds_tokens.dart
 
-      # 6. Add LICENSE/pubspec changes jika perlu
+      # 6. Prepare package
       - name: Prepare package
         run: |
           cd packages/fmi_core
           flutter pub get
           cd ../..
 
-      # 7. Commit generated files & package updates
-      - name: Commit generated files
+      # 7. Read current version
+      - name: Read current version
+        id: version
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          FILE="packages/fmi_core/pubspec.yaml"
+          CURRENT_VERSION=$(grep '^version:' $FILE | awk '{print $2}')
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+
+      # 8. Bump patch version
+      - name: Bump version
+        run: |
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+          PATCH=$((PATCH + 1))
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "Bumping version: $CURRENT_VERSION → $NEW_VERSION"
+          sed -i "s/^version: .*/version: $NEW_VERSION/" packages/fmi_core/pubspec.yaml
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      # 9. Commit all changes
+      - name: Commit changes
+        run: |
+          git config user.name "dharma hermanda"
+          git config user.email "dharma_hermanda@kamoro.com"
           git add packages/fmi_core/lib/design_tokens/mds_tokens.dart
+          git add packages/fmi_core/pubspec.yaml
           git add packages/fmi_core/pubspec.lock || echo "No pubspec.lock changes"
-          git commit -m "chore: update generated tokens & package" || echo "No changes to commit"
-      
-      # 8. Push to repo using PAT token
+          git commit -m "chore: generate tokens & bump fmi_core to $NEW_VERSION" || echo "No changes to commit"
+
+      # 10. Push to main
       - name: Push changes
         env:
           GH_PAT: ${{ secrets.PAT_TOKEN }}
         run: |
           git push https://x-access-token:${GH_PAT}@github.com/dharmahermanda-001/mds-token.git HEAD:main
+
+      # 11. Create tag
+      - name: Create tag
+        env:
+          GH_PAT: ${{ secrets.PAT_TOKEN }}
+        run: |
+          git tag fmi_core-v${{ env.NEW_VERSION }}
+          git push https://x-access-token:${GH_PAT}@github.com/dharmahermanda-001/mds-token.git fmi_core-v${{ env.NEW_VERSION }}
