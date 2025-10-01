@@ -1,19 +1,22 @@
-name: Generate Tokens and Bump Version
+name: Generate Tokens and Auto Bump
 
 on:
   push:
     paths:
       - "tokens/tokens.json"
+      - "packages/fmi_core/**"
   workflow_dispatch:
 
 jobs:
-  generate_package:
+  generate_and_bump:
     runs-on: ubuntu-latest
 
     steps:
       # 1. Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }} # pakai PAT supaya bisa push balik
 
       # 2. Setup Flutter
       - name: Setup Flutter
@@ -29,34 +32,30 @@ jobs:
       - name: Generate Tokens
         run: dart tool/generate_tokens.dart
 
-      # 5. Commit generated tokens
-      - name: Commit generated files
+      # 5. Bump pubspec.yaml version
+      - name: Read and bump version
+        id: bump
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add packages/fmi_core/lib/design_tokens/mds_tokens.dart
-          git commit -m "chore: update generated tokens [skip ci]" || echo "No changes"
-
-      # 6. Bump pubspec.yaml version
-      - name: Bump pubspec.yaml version
-        uses: CumulusDS/get-yaml-paths-action@v1
-        id: version
-        with:
-          file: packages/fmi_core/pubspec.yaml
-          version: true
-
-      - name: Update pubspec.yaml version
-        run: |
-          old_version=${{ steps.version.outputs.version }}
+          FILE="packages/fmi_core/pubspec.yaml"
+          old_version=$(grep '^version:' $FILE | awk '{print $2}')
           new_version=$(echo $old_version | awk -F. -v OFS=. '{$NF++;print}')
-          echo "Update version from $old_version to $new_version"
-          sed -i "s/^version: .*/version: $new_version/" packages/fmi_core/pubspec.yaml
-          echo "new_version=$new_version" >> $GITHUB_ENV
+          echo "Old version: $old_version"
+          echo "New version: $new_version"
+          sed -i "s/^version: .*/version: $new_version/" $FILE
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
 
-      - name: Commit bumped version
+      # 6. Commit changes
+      - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add packages/fmi_core/pubspec.yaml
-          git commit -m "chore(fmi_core): bump version to $new_version [skip ci]" || echo "No changes"
-          git push
+          git add packages/fmi_core/lib/design_tokens/mds_tokens.dart
+          git commit -m "chore(fmi_core): bump version to ${{ steps.bump.outputs.new_version }}" || echo "No changes"
+
+      # 7. Push back to repo
+      - name: Push changes
+        env:
+          GH_PAT: ${{ secrets.PAT_TOKEN }}
+        run: |
+          git push https://x-access-token:${GH_PAT}@github.com/dharmahermanda-001/mds-token.git HEAD:main
