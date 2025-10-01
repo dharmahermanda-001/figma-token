@@ -8,37 +8,51 @@ on:
       - "packages/fmi_core/lib/design_tokens/**"
     branches:
       - main
-  workflow_dispatch:
+  workflow_dispatch: # memungkinkan trigger manual atau dari workflow lain
+
+permissions:
+  contents: write # agar bisa push dan buat tag
 
 jobs:
   bump:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.PAT_TOKEN }} # pakai PAT biar bisa push balik
+          token: ${{ secrets.PAT_TOKEN }} # pakai PAT agar bisa push dan tag
 
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
         with:
           sdk: "stable"
 
-      - name: Bump version in pubspec.yaml
+      - name: Read current version
+        id: version
         run: |
           FILE="packages/fmi_core/pubspec.yaml"
-          VERSION=$(grep '^version:' $FILE | awk '{print $2}')
-          MAJOR=$(echo $VERSION | cut -d. -f1)
-          MINOR=$(echo $VERSION | cut -d. -f2)
-          PATCH=$(echo $VERSION | cut -d. -f3)
-          NEW_VERSION="$MAJOR.$MINOR.$((PATCH+1))"
-          echo "Bumping version: $VERSION → $NEW_VERSION"
-          sed -i "s/^version: .*/version: $NEW_VERSION/" $FILE
+          CURRENT_VERSION=$(grep '^version:' $FILE | awk '{print $2}')
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+
+      - name: Bump patch version
+        run: |
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+          PATCH=$((PATCH + 1))
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "Bumping version: $CURRENT_VERSION → $NEW_VERSION"
+          sed -i "s/^version: .*/version: $NEW_VERSION/" packages/fmi_core/pubspec.yaml
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Commit new version
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "dharma hermanda"
+          git config user.email "dharma_hermanda@kamoro.com"
           git add packages/fmi_core/pubspec.yaml
-          git commit -m "chore(fmi_core): bump version"
+          git commit -m "chore(fmi_core): bump version to $NEW_VERSION" || echo "No changes to commit"
           git push origin main
+
+      - name: Create tag
+        run: |
+          git tag fmi_core-v${{ env.NEW_VERSION }}
+          git push origin fmi_core-v${{ env.NEW_VERSION }}
