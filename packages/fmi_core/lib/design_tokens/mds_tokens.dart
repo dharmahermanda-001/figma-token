@@ -19,7 +19,7 @@ class _Color2 {
   Color get inversPrimary => Color(0xFF83cfff);
   Color get surface => Color(0xFFf6fafe);
   Color get blue => Color(0xFF00aeff);
-  Color get cooper => Color(0xFFf4d46e);
+  Color get cooper => Color(0xFFf57b6e);
 }
 
 class _Pad2 {
@@ -54,7 +54,7 @@ class _Gab2 {
 }
 
 class _Registry {
-  dynamic get OOBFilledButton => null;
+  dynamic get OOBFilledButton => {"default":{"style":{"value":{"backgroundColor":"color2.primary","padding":"pad2.md","radius":"radius2.sm"},"type":"style"},"child":{"value":"Label","type":"other"},"icon":{"value":"OOB-Icon","type":"other"},"iconVisible":{"value":"false","type":"other"}},"secondary":{"style":{"value":{"backgroundColor":"color2.primary","padding":"pad2.md","radius":"radius2.sm"},"type":"style"},"child":{"value":"Label","type":"other"},"icon":{"value":"OOB-Icon","type":"other"},"iconVisible":{"value":"false","type":"other"}}};
 }
 
 class _$metadata {
