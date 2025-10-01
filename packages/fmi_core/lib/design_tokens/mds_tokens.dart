@@ -30,7 +30,7 @@ class _Pad2 {
   double get none => 0.0;
   double get xs => 10.0;
   double get xxl => 10.0;
-  double get xxs => 0.125;
+  double get xxs => 10.0;
 }
 
 class _Gap2 {
