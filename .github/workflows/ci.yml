@@ -14,6 +14,8 @@ jobs:
       # 1. Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
 
       # 2. Setup Flutter
       - name: Setup Flutter
