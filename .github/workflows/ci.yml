@@ -31,7 +31,7 @@ jobs:
 
       # 5. Verify generated file
       - name: Check generated file
-        run: ls -l packages/fmi_core/lib/generated/mds_tokens.dart
+        run: ls -l packages/fmi_core/lib/design_tokens/mds_tokens.dart
 
       # 6. Add LICENSE/pubspec changes jika perlu
       - name: Prepare package
@@ -45,7 +45,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add packages/fmi_core/lib/generated/mds_tokens.dart
+          git add packages/fmi_core/lib/design_tokens/mds_tokens.dart
           git add packages/fmi_core/pubspec.lock || echo "No pubspec.lock changes"
           git commit -m "chore: update generated tokens & package" || echo "No changes to commit"
       
