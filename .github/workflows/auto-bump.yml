@@ -6,6 +6,9 @@ on:
       - "packages/fmi_core/**"
       - "packages/fmi_core/lib/**"
       - "packages/fmi_core/lib/design_tokens/**"
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   bump:
