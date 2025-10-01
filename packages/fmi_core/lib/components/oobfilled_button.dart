@@ -46,7 +46,7 @@ class OOBFilledButton extends StatelessWidget {
         break;
       case 'secondary':
         defaultStyle = ElevatedButton.styleFrom(
-          backgroundColor: MdsTokens.color2.primary,
+          backgroundColor: MdsTokens.color2.inversPrimary,
           padding: EdgeInsets.all(MdsTokens.pad2.md),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(MdsTokens.radius2.sm),

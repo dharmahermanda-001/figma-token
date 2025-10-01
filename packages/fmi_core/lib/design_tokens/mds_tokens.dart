@@ -54,7 +54,7 @@ class _Gab2 {
 }
 
 class _Registry {
-  dynamic get OOBFilledButton => {"default":{"style":{"value":{"backgroundColor":"color2.primary","padding":"pad2.md","radius":"radius2.sm"},"type":"style"},"child":{"value":"Label","type":"other"},"icon":{"value":"OOB-Icon","type":"other"},"iconVisible":{"value":"false","type":"other"}},"secondary":{"style":{"value":{"backgroundColor":"color2.primary","padding":"pad2.md","radius":"radius2.sm"},"type":"style"},"child":{"value":"Label","type":"other"},"icon":{"value":"OOB-Icon","type":"other"},"iconVisible":{"value":"false","type":"other"}}};
+  dynamic get OOBFilledButton => {"default":{"style":{"value":{"backgroundColor":"color2.primary","padding":"pad2.md","radius":"radius2.sm"},"type":"style"},"child":{"value":"Label","type":"other"},"icon":{"value":"OOB-Icon","type":"other"},"iconVisible":{"value":"false","type":"other"}},"secondary":{"style":{"value":{"backgroundColor":"color2.inversPrimary","padding":"pad2.md","radius":"radius2.sm"},"type":"style"},"child":{"value":"Label","type":"other"},"icon":{"value":"OOB-Icon","type":"other"},"iconVisible":{"value":"false","type":"other"}}};
 }
 
 class _$metadata {
