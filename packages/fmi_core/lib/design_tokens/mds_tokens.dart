@@ -29,7 +29,7 @@ class _Pad2 {
   double get xl => 10.0;
   double get none => 0.0;
   double get xs => 10.0;
-  double get xxl => 23.0;
+  double get xxl => 10.0;
   double get xxs => 0.125;
 }
 
