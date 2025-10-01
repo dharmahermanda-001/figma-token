@@ -23,34 +23,34 @@ class _Color2 {
 }
 
 class _Pad2 {
-  double get lg => 1.5;
-  double get md => 1.0;
-  double get sm => 0.5;
-  double get xl => 10.0;
+  double get lg => 24.0;
+  double get md => 16.0;
+  double get sm => 8.0;
+  double get xl => 32.0;
   double get none => 0.0;
-  double get xs => 10.0;
-  double get xxl => 10.0;
-  double get xxs => 10.0;
+  double get xs => 4.0;
+  double get xxl => 64.0;
+  double get xxs => 2.0;
 }
 
 class _Gap2 {
-  double get sm => 0.5;
-  double get lg => 1.5;
-  double get md => 1.0;
-  double get none => 10.0;
-  double get xl => 10.0;
-  double get xxs => 10.0;
-  double get xs => 0.7;
+  double get sm => 8.0;
+  double get lg => 24.0;
+  double get md => 16.0;
+  double get none => 0.0;
+  double get xl => 32.0;
+  double get xxs => 2.0;
+  double get xs => 4.0;
 }
 
 class _Radius2 {
-  double get sm => 15.0;
-  double get md => 0.625;
-  double get lg => 0.875;
+  double get sm => 6.0;
+  double get md => 10.0;
+  double get lg => 14.0;
 }
 
 class _Gab2 {
-  double get none => 10.0;
+  double get none => 0.0;
 }
 
 class _Registry {
