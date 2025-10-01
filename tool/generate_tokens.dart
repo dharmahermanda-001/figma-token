@@ -14,6 +14,52 @@ void main() async {
   final jsonStr = await inputFile.readAsString();
   final Map<String, dynamic> tokens = jsonDecode(jsonStr);
 
+  // --- STEP 1: collect categories & keys from tokens.json
+  final newCategories = <String, Set<String>>{};
+  tokens.forEach((category, values) {
+    if (values is Map<String, dynamic> && values.isNotEmpty) {
+      newCategories[category] = values.keys.toSet();
+    }
+  });
+
+  // --- STEP 2: if old file exists, parse it
+  final oldFile = File(outputPath);
+  if (oldFile.existsSync()) {
+    final oldContent = await oldFile.readAsString();
+
+    final missing = <String, List<String>>{};
+
+    // regex ambil class & getter
+    final classRegex = RegExp(r'class _([A-Za-z0-9_]+) \{([\s\S]*?)\}');
+    for (final match in classRegex.allMatches(oldContent)) {
+      final category = match.group(1)?.toLowerCase();
+      final body = match.group(2) ?? '';
+
+      if (category != null) {
+        final getters = RegExp(r'(\w+)\s+get\s+(\w+)')
+            .allMatches(body)
+            .map((m) => m.group(2)!)
+            .toSet();
+
+        final existing = newCategories[category] ?? <String>{};
+        final diff = getters.difference(existing);
+
+        if (diff.isNotEmpty) {
+          missing[category] = diff.toList();
+        }
+      }
+    }
+
+    if (missing.isNotEmpty) {
+      print('❌ Validation failed: Some tokens disappeared compared to previous file.');
+      missing.forEach((cat, props) {
+        print(' - Category $cat: missing ${props.join(', ')}');
+      });
+      exit(1);
+    }
+  }
+
+  // --- STEP 3: generate new file
   final buffer = StringBuffer();
 
   buffer.writeln('// GENERATED CODE - DO NOT MODIFY BY HAND');
@@ -78,7 +124,6 @@ void main() async {
               break;
 
             default:
-              // fallback untuk Map tanpa type atau string/number
               if (val is Map || val is List) {
                 buffer.writeln('  dynamic get $k => ${jsonEncode(val)};');
               } else {
@@ -86,7 +131,6 @@ void main() async {
               }
           }
         } else {
-          // fallback jika v bukan Map
           buffer.writeln('  dynamic get $k => ${_encodeValue(v)};');
         }
       });
@@ -94,12 +138,11 @@ void main() async {
     }
   });
 
-  // buat folder output jika belum ada
   final outputFile = File(outputPath);
   outputFile.parent.createSync(recursive: true);
   await outputFile.writeAsString(buffer.toString());
 
-  print('Tokens generated to $outputPath');
+  print('✅ Tokens generated to $outputPath');
 }
 
 String _capitalize(String s) => s[0].toUpperCase() + s.substring(1);
@@ -107,8 +150,9 @@ String _capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 double _parseDouble(dynamic val) {
   if (val == null) return 0;
   if (val is num) return val.toDouble();
-  if (val is String)
+  if (val is String) {
     return double.tryParse(val.replaceAll('px', '').replaceAll('%', '')) ?? 0;
+  }
   return 0;
 }
 
