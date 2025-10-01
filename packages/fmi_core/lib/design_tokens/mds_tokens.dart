@@ -17,7 +17,7 @@ class _Color2 {
   Color get onPrimaryContainer => Color(0xFF001d2e);
   Color get inversPrimary => Color(0xFF83cfff);
   Color get surface => Color(0xFFf6fafe);
-  Color get cooper => Color(0xFFfff000);
+  Color get cooper => Color(0xFFff5b00);
   Color get blue => Color(0xFF00aeff);
 }
 
@@ -28,7 +28,7 @@ class _Pad2 {
   double get xl => 24.0;
   double get none => 0.0;
   double get xs => 0.25;
-  double get xxl => 11.0;
+  double get xxl => 23.0;
   double get xxs => 0.125;
 }
 
