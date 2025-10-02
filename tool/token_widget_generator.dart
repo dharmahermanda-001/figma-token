@@ -15,7 +15,7 @@ void main() async {
   final inputPath = 'tokens/tokens.json';
   final tokenOutputPath =
       'packages/fmi_core/lib/design_tokens/mds_tokens.dart';
-  final componentBasePath = 'packages/fmi_core/lib/components';
+  final componentBasePath = 'packages/fmi_core/lib/components/new';
 
   final inputFile = File(inputPath);
   if (!inputFile.existsSync()) {
