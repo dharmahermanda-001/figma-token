@@ -30,7 +30,7 @@ jobs:
 
       # 4. Generate tokens
       - name: Generate Tokens
-        run: dart tool/generate_tokens.dart
+        run: dart tool/token_widget_generator.dart
 
       # 5. Bump pubspec.yaml version
       - name: Read and bump version
