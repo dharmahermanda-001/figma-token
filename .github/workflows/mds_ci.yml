@@ -1,4 +1,4 @@
-name: Generate Tokens and Auto Bump
+name: Generate Tokens and Auto Bump (V1)
 
 on:
   push:
