@@ -113,11 +113,13 @@ void main() async {
   print('✅ Tokens generated to $tokenOutputPath');
 
   // --- STEP 4: Generate widget classes (Buttons & Cards) ---
-  if (tokens.containsKey('registry') && tokens['registry'] is Map<String, dynamic>) {
-    final registry = tokens['registry'] as Map<String, dynamic>;
+if (tokens.containsKey('registry') && tokens['registry'] is List) {
+  final registry = tokens['registry'] as List;
 
-    for (final compName in registry.keys) {
-      final compData = registry[compName];
+  for (final comp in registry) {
+    if (comp is Map<String, dynamic>) {
+      final compName = comp['name'] ?? 'UnknownComponent';
+      final compData = comp;
 
       // normalize filename to snake_case
       final fileName = _toSnakeCase(compName);
@@ -129,14 +131,12 @@ void main() async {
       regBuffer.writeln('import \'package:flutter/material.dart\';');
       regBuffer.writeln('import \'../design_tokens/mds_tokens.dart\';\n');
 
-      // decide component type: button | card | generic
       final lower = compName.toLowerCase();
       if (lower.contains('button')) {
         _generateButtonClass(regBuffer, compName, compData, tokens);
       } else if (lower.contains('card')) {
         _generateCardClass(regBuffer, compName, compData, tokens);
       } else {
-        // fallback: generate a simple wrapper (kept minimal)
         _generateGenericClass(regBuffer, compName, compData);
       }
 
@@ -145,6 +145,7 @@ void main() async {
     }
   }
 }
+
 
 /// ----------------- Generator helpers -----------------
 
