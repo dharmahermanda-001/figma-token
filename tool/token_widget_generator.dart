@@ -12,7 +12,7 @@ import 'dart:convert';
 import 'dart:io';
 
 void main() async {
-  final inputPath = 'tokens/tokens.json';
+  final inputPath = 'tokens/token_v1.json';
   final tokenOutputPath =
       'packages/fmi_core/lib/design_tokens/mds_tokens.dart';
   final componentBasePath = 'packages/fmi_core/lib/components/new';
