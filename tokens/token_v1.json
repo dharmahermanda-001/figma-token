@@ -1,2 +1,310 @@
 {
+  "color2": {
+    "primary": {
+      "value": "#00658d",
+      "type": "color"
+    },
+    "onPrimary": {
+      "value": "#ffffff",
+      "type": "color"
+    },
+    "primaryContainer": {
+      "value": "#c6e7ff",
+      "type": "color"
+    },
+    "onPrimaryContainer": {
+      "value": "#001d2e",
+      "type": "color"
+    },
+    "inversPrimary": {
+      "value": "#83cfff",
+      "type": "color"
+    },
+    "surface": {
+      "value": "#f6fafe",
+      "type": "color"
+    },
+    "blue": {
+      "value": "#00aeff",
+      "type": "color"
+    },
+    "cooper": {
+      "value": "#f57b6e",
+      "type": "color"
+    }
+  },
+  "Text": {},
+  "pad2": {
+    "lg": {
+      "value": 24,
+      "type": "dimension"
+    },
+    "md": {
+      "value": 16,
+      "type": "dimension"
+    },
+    "sm": {
+      "value": 8,
+      "type": "dimension"
+    },
+    "xl": {
+      "value": 32,
+      "type": "dimension"
+    },
+    "none": {
+      "value": 0,
+      "type": "dimension"
+    },
+    "xs": {
+      "value": 4,
+      "type": "dimension"
+    },
+    "xxl": {
+      "value": 64,
+      "type": "dimension"
+    },
+    "xxs": {
+      "value": 2,
+      "type": "dimension"
+    }
+  },
+  "gap2": {
+    "sm": {
+      "value": 8,
+      "type": "dimension"
+    },
+    "lg": {
+      "value": 24,
+      "type": "dimension"
+    },
+    "md": {
+      "value": 16,
+      "type": "dimension"
+    },
+    "none": {
+      "value": 0,
+      "type": "dimension"
+    },
+    "xl": {
+      "value": 32,
+      "type": "dimension"
+    },
+    "xxs": {
+      "value": 2,
+      "type": "dimension"
+    },
+    "xs": {
+      "value": 4,
+      "type": "dimension"
+    }
+  },
+  "radius2": {
+    "sm": {
+      "value": 6,
+      "type": "dimension"
+    },
+    "md": {
+      "value": 10,
+      "type": "dimension"
+    },
+    "lg": {
+      "value": 14,
+      "type": "dimension"
+    }
+  },
+  "gab2": {
+    "none": {
+      "value": 0,
+      "type": "dimension"
+    }
+  },
+  "registry": 
+    [
+      {
+        "name": "MDS-Card",
+        "type": "COMPONENT",
+        "x": 5697,
+        "y": 288,
+        "width": 386,
+        "height": 115,
+        "fills": [
+          {
+            "type": "SOLID",
+            "visible": true,
+            "opacity": 1,
+            "blendMode": "NORMAL",
+            "color": {
+              "r": 0.9647058844566345,
+              "g": 0.9803921580314636,
+              "b": 0.9960784316062927
+            },
+            "boundVariables": {
+              "color": {
+                "type": "VARIABLE_ALIAS",
+                "id": "VariableID:86127:142"
+              }
+            }
+          }
+        ],
+        "cornerRadius": 14,
+        "children": [
+          {
+            "name": "OOB-Row",
+            "type": "FRAME",
+            "x": 16,
+            "y": 14,
+            "width": 95,
+            "height": 44,
+            "fills": [
+              {
+                "type": "SOLID",
+                "visible": true,
+                "opacity": 0,
+                "blendMode": "NORMAL",
+                "color": {
+                  "r": 1,
+                  "g": 1,
+                  "b": 1
+                },
+                "boundVariables": {}
+              }
+            ],
+            "children": [
+              {
+                "name": "Card Title",
+                "type": "TEXT",
+                "x": 0,
+                "y": 8,
+                "width": 95,
+                "height": 28,
+                "fills": [
+                  {
+                    "type": "SOLID",
+                    "visible": true,
+                    "opacity": 1,
+                    "blendMode": "NORMAL",
+                    "color": {
+                      "r": 0,
+                      "g": 0,
+                      "b": 0
+                    },
+                    "boundVariables": {}
+                  }
+                ],
+                "characters": "Card Title",
+                "fontSize": 22,
+                "fontName": {
+                  "family": "SF Pro",
+                  "style": "Regular"
+                },
+                "textAlignHorizontal": "LEFT",
+                "textAlignVertical": "TOP",
+                "lineHeight": {
+                  "unit": "PIXELS",
+                  "value": 28
+                },
+                "tailwind": {
+                  "width": "w-95",
+                  "height": "h-28",
+                  "font-size": "text-22"
+                }
+              },
+              null
+            ],
+            "layoutMode": "HORIZONTAL",
+            "primaryAxisSizingMode": "AUTO",
+            "counterAxisSizingMode": "AUTO",
+            "primaryAxisAlignItems": "MIN",
+            "counterAxisAlignItems": "CENTER",
+            "paddingTop": 8,
+            "paddingBottom": 8,
+            "itemSpacing": 8,
+            "tailwind": {
+              "width": "w-95",
+              "height": "h-44",
+              "margin-left": "ml-16",
+              "padding": "py-8",
+              "flex": "flex gap-8",
+              "justify-content": "justify-start",
+              "align-items": "items-center"
+            }
+          },
+          {
+            "name": "mds-card-body-slot",
+            "type": "INSTANCE",
+            "x": 16,
+            "y": 74,
+            "width": 354,
+            "height": 27,
+            "fills": [
+              {
+                "type": "SOLID",
+                "visible": true,
+                "opacity": 0,
+                "blendMode": "NORMAL",
+                "color": {
+                  "r": 1,
+                  "g": 1,
+                  "b": 1
+                },
+                "boundVariables": {}
+              }
+            ],
+            "children": [],
+            "layoutMode": "HORIZONTAL",
+            "primaryAxisSizingMode": "AUTO",
+            "counterAxisSizingMode": "FIXED",
+            "primaryAxisAlignItems": "MIN",
+            "counterAxisAlignItems": "MIN",
+            "paddingTop": 8,
+            "paddingRight": 8,
+            "paddingBottom": 8,
+            "paddingLeft": 8,
+            "itemSpacing": 8,
+            "tailwind": {
+              "width": "w-354",
+              "height": "h-27",
+              "margin-left": "ml-16",
+              "padding": "p-8",
+              "flex": "flex gap-8",
+              "justify-content": "justify-start",
+              "align-items": "items-start"
+            }
+          },
+          null
+        ],
+        "layoutMode": "VERTICAL",
+        "primaryAxisSizingMode": "AUTO",
+        "counterAxisSizingMode": "AUTO",
+        "primaryAxisAlignItems": "MIN",
+        "counterAxisAlignItems": "MIN",
+        "paddingTop": 14,
+        "paddingRight": 16,
+        "paddingBottom": 14,
+        "paddingLeft": 16,
+        "itemSpacing": 16,
+        "tailwind": {
+          "width": "w-386",
+          "height": "h-115",
+          "margin-left": "ml-5697",
+          "padding": "px-16 py-14",
+          "flex": "flex flex-col gap-16",
+          "justify-content": "justify-start",
+          "align-items": "items-start"
+        }
+      }
+    ]
+  ,
+  "$themes": [],
+  "$metadata": {
+    "tokenSetOrder": [
+      "color2",
+      "Text",
+      "pad2",
+      "gap2",
+      "radius2",
+      "gab2",
+      "registry"
+    ]
+  }
 }
