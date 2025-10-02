@@ -116,7 +116,11 @@
     "none": {
       "value": 0,
       "type": "dimension"
-    }
+    },
+    "sm": {
+      "value": 6,
+      "type": "dimension"
+    },
   },
   "registry": 
     [
