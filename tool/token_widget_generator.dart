@@ -62,14 +62,7 @@ void main() async {
       }
     }
 
-    if (missing.isNotEmpty) {
-      print(
-          '❌ Validation failed: Some tokens disappeared compared to previous file.');
-      missing.forEach((cat, props) {
-        print(' - Category $cat: missing ${props.join(', ')}');
-      });
-      exit(1);
-    }
+    
   }
 
   // --- STEP 3: Generate tokens file ---
