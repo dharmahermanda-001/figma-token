@@ -61,12 +61,4 @@ jobs:
         run: |
           git push https://x-access-token:${GH_PAT}@github.com/dharmahermanda-001/mds-token.git HEAD:main
 
-      # 8. Create tag for version
-      - name: Create and push tag
-        if: ${{ steps.bump.outputs.new_version != '' }}
-        env:
-          GH_PAT: ${{ secrets.PAT_TOKEN }}
-        run: |
-          TAG="fmi_core-v${{ steps.bump.outputs.new_version }}"
-          git tag $TAG
-          git push https://x-access-token:${GH_PAT}@github.com/dharmahermanda-001/mds-token.git $TAG
+    
