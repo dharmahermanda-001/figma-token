@@ -13,8 +13,7 @@ import 'dart:io';
 
 void main() async {
   final inputPath = 'tokens/token_v1.json';
-  final tokenOutputPath =
-      'packages/fmi_core/lib/design_tokens/mds_tokens.dart';
+  final tokenOutputPath = 'packages/fmi_core/lib/design_tokens/mds_tokens.dart';
   final componentBasePath = 'packages/fmi_core/lib/components/new';
 
   final inputFile = File(inputPath);
@@ -61,8 +60,6 @@ void main() async {
         }
       }
     }
-
-    
   }
 
   // --- STEP 3: Generate tokens file ---
@@ -113,44 +110,44 @@ void main() async {
   print('✅ Tokens generated to $tokenOutputPath');
 
   // --- STEP 4: Generate widget classes (Buttons & Cards) ---
-if (tokens.containsKey('registry') && tokens['registry'] is List) {
-  final registry = tokens['registry'] as List;
+  if (tokens.containsKey('registry') && tokens['registry'] is List) {
+    final registry = tokens['registry'] as List;
 
-  for (final comp in registry) {
-    if (comp is Map<String, dynamic>) {
-      final compName = comp['name'] ?? 'UnknownComponent';
-      final compData = comp;
+    for (final comp in registry) {
+      if (comp is Map<String, dynamic>) {
+        final compName = comp['name'] ?? 'UnknownComponent';
+        final compData = comp;
 
-      // normalize filename to snake_case
-      final fileName = _toSnakeCase(compName);
-      final compFile = File('$componentBasePath/$fileName.dart');
-      compFile.parent.createSync(recursive: true);
+        // normalize filename to snake_case
+        final fileName = _toSnakeCase(compName);
+        final compFile = File('$componentBasePath/$fileName.dart');
+        compFile.parent.createSync(recursive: true);
 
-      final regBuffer = StringBuffer();
-      regBuffer.writeln('// GENERATED CODE - DO NOT MODIFY BY HAND');
-      regBuffer.writeln('import \'package:flutter/material.dart\';');
-      regBuffer.writeln('import \'../design_tokens/mds_tokens.dart\';\n');
+        final regBuffer = StringBuffer();
+        regBuffer.writeln('// GENERATED CODE - DO NOT MODIFY BY HAND');
+        regBuffer.writeln('import \'package:flutter/material.dart\';');
+        regBuffer.writeln('import \'../design_tokens/mds_tokens.dart\';\n');
 
-      final lower = compName.toLowerCase();
-      if (lower.contains('button')) {
-        _generateButtonClass(regBuffer, compName, compData, tokens);
-      } else if (lower.contains('card')) {
-        _generateCardClass(regBuffer, compName, compData, tokens);
-      } else {
-        _generateGenericClass(regBuffer, compName, compData);
+        final lower = compName.toLowerCase();
+        if (lower.contains('button')) {
+          _generateButtonClass(regBuffer, compName, compData, tokens);
+        } else if (lower.contains('card')) {
+          _generateCardClass(regBuffer, compName, compData, tokens);
+        } else {
+          _generateGenericClass(regBuffer, compName, compData);
+        }
+
+        await compFile.writeAsString(regBuffer.toString());
+        print('✅ Widget class generated for $compName at $compFile');
       }
-
-      await compFile.writeAsString(regBuffer.toString());
-      print('✅ Widget class generated for $compName at $compFile');
     }
   }
 }
 
-
 /// ----------------- Generator helpers -----------------
 
-void _generateButtonClass(StringBuffer b, String className,
-    dynamic compData, Map<String, dynamic> tokens) {
+void _generateButtonClass(StringBuffer b, String className, dynamic compData,
+    Map<String, dynamic> tokens) {
   b.writeln('class $className extends StatelessWidget {');
   b.writeln('  final ButtonStyle? style;');
   b.writeln('  final Widget child;');
@@ -218,15 +215,15 @@ void _generateButtonClass(StringBuffer b, String className,
       final childVal = _safeGet(props, 'child') is Map
           ? (_safeGet(props, 'child')['value'] ?? 'Label')
           : (_safeGet(props, 'child') ?? 'Label');
-      b.writeln("        defaultChild = Text('${_escapeDartString(childVal.toString())}');");
+      b.writeln(
+          "        defaultChild = Text('${_escapeDartString(childVal.toString())}');");
 
       // default icon (we don't map icon name to IconData here — keep null)
       b.writeln('        defaultIcon = null;');
 
       // iconVisible
       final iconVisibleRaw = _safeGet(props, 'iconVisible');
-      final iconVisibleVal =
-          _parseBoolish(iconVisibleRaw) ? 'true' : 'false';
+      final iconVisibleVal = _parseBoolish(iconVisibleRaw) ? 'true' : 'false';
       b.writeln('        defaultIconVisible = $iconVisibleVal;');
 
       b.writeln('        break;');
@@ -275,9 +272,11 @@ void _generateCardClass(StringBuffer b, String className, dynamic compData,
   b.writeln('  final Widget? header;');
   b.writeln('  final Widget? body;');
   b.writeln('  final Widget? footer;');
-  b.writeln('  const $className({this.header, this.body, this.footer, super.key});\n');
+  b.writeln(
+      '  const $className({this.header, this.body, this.footer, super.key});\n');
 
-  b.writeln('  factory $className.variant({required String variant, Widget? header, Widget? body, Widget? footer}) {');
+  b.writeln(
+      '  factory $className.variant({required String variant, Widget? header, Widget? body, Widget? footer}) {');
   b.writeln('    late Color defaultBg;');
   b.writeln('    late EdgeInsets defaultPadding;');
   b.writeln('    late BorderRadius defaultRadius;\n');
@@ -309,7 +308,8 @@ void _generateCardClass(StringBuffer b, String className, dynamic compData,
         }
 
         if (radiusToken != null) {
-          b.writeln('        defaultRadius = BorderRadius.circular(MdsTokens.${radiusToken});');
+          b.writeln(
+              '        defaultRadius = BorderRadius.circular(MdsTokens.${radiusToken});');
         } else {
           b.writeln('        defaultRadius = BorderRadius.circular(0);');
         }
@@ -324,10 +324,12 @@ void _generateCardClass(StringBuffer b, String className, dynamic compData,
     b.writeln("      default: throw Exception('Unknown variant \$variant');");
     b.writeln('    }');
   } else {
-    b.writeln('    defaultBg = Colors.white; defaultPadding = EdgeInsets.zero; defaultRadius = BorderRadius.circular(0);');
+    b.writeln(
+        '    defaultBg = Colors.white; defaultPadding = EdgeInsets.zero; defaultRadius = BorderRadius.circular(0);');
   }
 
-  b.writeln('    return $className(header: header, body: body, footer: footer);');
+  b.writeln(
+      '    return $className(header: header, body: body, footer: footer);');
   b.writeln('  }\n');
 
   // build
@@ -335,7 +337,8 @@ void _generateCardClass(StringBuffer b, String className, dynamic compData,
   b.writeln('  Widget build(BuildContext context) {');
   b.writeln('    return Container(');
   b.writeln('      decoration: BoxDecoration(');
-  b.writeln('        color: defaultBg ?? Colors.white,'); // safe: defaultBg assigned in factory
+  b.writeln(
+      '        color: defaultBg ?? Colors.white,'); // safe: defaultBg assigned in factory
   b.writeln('        borderRadius: defaultRadius ?? BorderRadius.circular(0),');
   b.writeln('      ),');
   b.writeln('      padding: defaultPadding ?? EdgeInsets.zero,');
@@ -401,7 +404,8 @@ String? _resolveColorTokenFromStyle(Map<String, dynamic> styleMap, Map tokens) {
   return null;
 }
 
-String? _resolveRadiusTokenFromStyle(Map<String, dynamic> styleMap, Map tokens) {
+String? _resolveRadiusTokenFromStyle(
+    Map<String, dynamic> styleMap, Map tokens) {
   final r = styleMap['radius'];
   if (r == null) return null;
 
@@ -422,7 +426,8 @@ String? _resolveRadiusTokenFromStyle(Map<String, dynamic> styleMap, Map tokens) 
   return null;
 }
 
-String? _buildPaddingExpressionFromStyle(Map<String, dynamic> styleMap, Map tokens) {
+String? _buildPaddingExpressionFromStyle(
+    Map<String, dynamic> styleMap, Map tokens) {
   final padding = styleMap['padding'];
   if (padding == null) return null;
 
@@ -523,8 +528,8 @@ String? _findSpacingTokenForValue(double value, Map tokens) {
   }
 
   // nearest
-  final nearest = candidates.entries.reduce((a, b) =>
-      (a.value - value).abs() < (b.value - value).abs() ? a : b);
+  final nearest = candidates.entries.reduce(
+      (a, b) => (a.value - value).abs() < (b.value - value).abs() ? a : b);
   // set a tolerance: if difference less than, say, 4 px, accept
   if ((nearest.value - value).abs() <= 4.0) return nearest.key;
   return null;
@@ -554,8 +559,8 @@ String? _findRadiusTokenForValue(double value, Map tokens) {
     if ((e.value - value).abs() < 0.0001) return e.key;
   }
 
-  final nearest = candidates.entries.reduce((a, b) =>
-      (a.value - value).abs() < (b.value - value).abs() ? a : b);
+  final nearest = candidates.entries.reduce(
+      (a, b) => (a.value - value).abs() < (b.value - value).abs() ? a : b);
   if ((nearest.value - value).abs() <= 4.0) return nearest.key;
   return null;
 }
@@ -568,7 +573,8 @@ String? _findColorTokenForHex(String hex, Map tokens) {
       mapVal.forEach((k, v) {
         if (v is Map && v.containsKey('value')) {
           final raw = v['value'];
-          if (raw is String && raw.replaceAll('#', '').toUpperCase() == normalized) {
+          if (raw is String &&
+              raw.replaceAll('#', '').toUpperCase() == normalized) {
             // return token path
             return;
           }
@@ -586,7 +592,8 @@ String? _findColorTokenForHex(String hex, Map tokens) {
         final v = mapVal[k];
         if (v is Map && v.containsKey('value')) {
           final raw = v['value'];
-          if (raw is String && raw.replaceAll('#', '').toUpperCase() == normalized) {
+          if (raw is String &&
+              raw.replaceAll('#', '').toUpperCase() == normalized) {
             return '$category.$k';
           }
         }
